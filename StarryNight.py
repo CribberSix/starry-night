@@ -6,11 +6,13 @@ import numpy as np
 
 class StarryNight:
 
-    def __init__(self, width, height, number_of_nodes=50, surface=pygame.display.get_surface()):
-        self.width = width
-        self.height = height
-        self.screen = surface
+    def __init__(self, number_of_nodes=50, surface=None):
 
+        self.width, self.height = pygame.display.get_surface().get_size()
+        if surface is None:
+            self.screen = pygame.display.get_surface()
+        else:
+            self.screen = surface
 
         # Create color-spectrum of nodes (= stars)
         start = (255, 255, 255)
@@ -31,6 +33,7 @@ class StarryNight:
         self.max_connections = 4
         self.lower_linkage_bound_one = 250
         self.lower_linkage_bound_two = 170
+        self.create_nodes()
 
     def create_nodes(self):
         """
@@ -47,8 +50,8 @@ class StarryNight:
             self.connectedNodes.append([i, 0])  # create a list to keep track of nodes which are connected
 
     @staticmethod
-    def closest_distance(x, y):
-        return np.sqrt(((x[0] - y[0]) ** 2) + ((x[1] - y[1]) ** 2))
+    def calculate_distance(node_1, node_2):
+        return np.sqrt(((node_1[0] - node_2[0]) ** 2) + ((node_1[1] - node_2[1]) ** 2))
 
     def get_two_neighbour_nodes(self, node_index):
         shortest_dist_len_one = 10000000000
@@ -61,7 +64,7 @@ class StarryNight:
         cp = self.nodeArray[node_index]
         for index, node in enumerate(self.nodeArray):
             if node != cp:
-                current_dist = self.closest_distance(cp, self.nodeArray[index])
+                current_dist = self.calculate_distance(cp, self.nodeArray[index])
                 if current_dist < shortest_dist_len_one:
                     shortest_dist_len_three = shortest_dist_len_two
                     shortest_dist_len_two = shortest_dist_len_one
