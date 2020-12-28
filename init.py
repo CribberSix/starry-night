@@ -1,8 +1,7 @@
-from StarryNight import StarryNight
-
 from win32api import GetSystemMetrics
 import sys
 import pygame
+from StarryNight import StarryNight
 
 # ________________ PYGAME SETUP ________________ #
 fullscreen = False
@@ -15,14 +14,13 @@ else:
     systemHeight = 500
     screen = pygame.display.set_mode((systemWidth, systemHeight))
 pygame.display.set_caption("Minimal Pygame Window")
-
 clock = pygame.time.Clock()
 FPS = 30
 
 # ________________ GAME LOOP ________________ #
 nightly = StarryNight(25)
-
 col_background = (31, 71, 87)
+
 while True:
 
     for event in pygame.event.get():
