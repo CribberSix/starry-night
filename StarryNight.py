@@ -5,48 +5,49 @@ import numpy as np
 
 
 class StarryNight:
+
     def __init__(self, width, height, number_of_nodes=50, surface=pygame.display.get_surface()):
         self.width = width
         self.height = height
         self.screen = surface
 
-        self.clock = pygame.time.Clock()
-        self.col_background = (31, 71, 87)
 
-        # Schritte: (28,23,21)
-        self.col_node_1 = (255, 255, 255)
-        self.col_node_2 = (227, 232, 234)
-        self.col_node_3 = (199, 209, 213)
-        self.col_node_4 = (171, 186, 192)
-        self.col_node_5 = (143, 163, 171)
-        self.col_node_6 = (115, 140, 150)
-        self.col_node_7 = (87, 117, 129)
-        self.col_node_8 = (59, 94, 108)
-        self.col_node_9 = (31, 71, 87)
+        # Create color-spectrum of nodes (= stars)
+        start = (255, 255, 255)
+        self.colors_node = []
+        for i in range(9):
+            self.colors_node.append(start)
+            start = (start[0] - 28, start[1] - 23, start[2] - 21)
+        self.colors_node.reverse()  # brightest node comes last / on top.
+
         self.col_linkage = (33, 127, 158)
         self.col_triangle = (30, 76, 94)
 
         self.nodeArray = []
         self.connectedNodes = []
         self.nodeMovement = []
-        self.movement_max = 2
+        self.speed_limit = 2
         self.nodeCount = number_of_nodes
         self.max_connections = 4
         self.lower_linkage_bound_one = 250
         self.lower_linkage_bound_two = 170
 
     def create_nodes(self):
+        """
+        Create a list of randomly distributed nodes with random velocities.
+        """
         for i in range(self.nodeCount):
             self.nodeArray.append(
-                [random.randint(0, self.width), random.randint(0, self.height)])  # create a list of randomly distributed nodes
-            speed = [random.randint(-self.movement_max, self.movement_max),
-                     random.randint(-self.movement_max, self.movement_max)]
+                [random.randint(0, self.width), random.randint(0, self.height)])
+            speed = [random.randint(-self.speed_limit, self.speed_limit),
+                     random.randint(-self.speed_limit, self.speed_limit)]
             if speed[0] == 0 and speed[1] == 0:  # no node should not move at all.
                 speed[1] = 1
             self.nodeMovement.append(speed)  # each node has its movement (x & y)
             self.connectedNodes.append([i, 0])  # create a list to keep track of nodes which are connected
 
-    def closest_distance(self, x, y):
+    @staticmethod
+    def closest_distance(x, y):
         return np.sqrt(((x[0] - y[0]) ** 2) + ((x[1] - y[1]) ** 2))
 
     def get_two_neighbour_nodes(self, node_index):
@@ -84,7 +85,22 @@ class StarryNight:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+        # Calculation
+        self.move_nodes()
+        self.reset_connections()
 
+        # Rendering
+        self.draw_connection_triangles()
+        self.draw_connection_lines()
+        self.draw_nodes()
+
+    def draw_nodes(self):
+        # Draw all nodes
+        for circle in self.nodeArray:
+            for i, color in enumerate(self.colors_node):
+                pygame.draw.circle(self.screen, color, (circle[0], circle[1]), len(self.colors_node) - i)
+
+    def move_nodes(self):
         # Move nodes
         for i in range(0, self.nodeCount):
             self.nodeArray[i][0] += self.nodeMovement[i][0]
@@ -94,17 +110,22 @@ class StarryNight:
             if self.nodeArray[i][1] < 0 or self.nodeArray[i][1] > self.height:
                 self.nodeMovement[i][1] = self.nodeMovement[i][1] * (-1)
 
-        # Reset connection counter
+    def reset_connections(self):
+        """
+        Reset connections between nodes
+        """
         for i in range(self.nodeCount):
             self.connectedNodes[i][1] = 0
 
-        # Draw triangles
+    def draw_connection_triangles(self):
         for i in range(0, self.nodeCount):
             (a, b, c, d) = self.get_two_neighbour_nodes(i)
 
             if None not in [a, b, c]:
                 pygame.draw.polygon(self.screen, self.col_triangle,
                                     [self.nodeArray[a], self.nodeArray[b], self.nodeArray[c]], 0)
+
+    def draw_connection_lines(self):
 
         # Draw lines to the two closest nodes and around triangles
         for i in range(self.nodeCount):
@@ -124,18 +145,3 @@ class StarryNight:
 
             if None not in [b, c]:
                 pygame.draw.line(self.screen, self.col_linkage, self.nodeArray[b], self.nodeArray[c], 1)
-
-        # Draw all nodes
-        for circle in self.nodeArray:
-            # TODO: reduce based on col_node array
-            pygame.draw.circle(self.screen, self.col_node_9, (circle[0], circle[1]), 9)
-            pygame.draw.circle(self.screen, self.col_node_8, (circle[0], circle[1]), 8)
-            pygame.draw.circle(self.screen, self.col_node_7, (circle[0], circle[1]), 7)
-            pygame.draw.circle(self.screen, self.col_node_6, (circle[0], circle[1]), 6)
-            pygame.draw.circle(self.screen, self.col_node_5, (circle[0], circle[1]), 5)
-            pygame.draw.circle(self.screen, self.col_node_4, (circle[0], circle[1]), 4)
-            pygame.draw.circle(self.screen, self.col_node_3, (circle[0], circle[1]), 3)
-            pygame.draw.circle(self.screen, self.col_node_2, (circle[0], circle[1]), 2)
-            pygame.draw.circle(self.screen, self.col_node_1, (circle[0], circle[1]), 1)
-
-        self.clock.tick(20)
