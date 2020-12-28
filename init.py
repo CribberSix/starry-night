@@ -20,7 +20,7 @@ clock = pygame.time.Clock()
 FPS = 30
 
 # ________________ GAME LOOP ________________ #
-nightly = StarryNight(systemWidth, systemHeight, 25, screen)
+nightly = StarryNight(25)
 
 col_background = (31, 71, 87)
 while True:
