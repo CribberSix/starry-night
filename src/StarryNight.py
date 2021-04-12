@@ -1,5 +1,4 @@
 import pygame
-import sys
 import random
 import numpy as np
 
@@ -7,8 +6,8 @@ import numpy as np
 class StarryNight:
     def __init__(self, number_of_nodes=50, surface=None):
 
-        self.width, self.height = pygame.display.get_surface().get_size()
-        self.screen = pygame.display.get_surface() if surface is None else surface
+        self.screen = pygame.display.get_surface() if surface is None else surface 
+        self.width, self.height = self.screen.get_size()
 
         self.col_linkage = (33, 127, 158)
         self.col_triangle = (30, 76, 94)
